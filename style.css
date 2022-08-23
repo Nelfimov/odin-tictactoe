@@ -1,0 +1,73 @@
+:root {
+  --background-color-headerfooter-custom: #fde68a;
+  --background-color-content-custom: #fffbeb;
+}
+
+html,
+body {
+  height: 100vh;
+  margin: 0;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 100px 1fr 100px;
+  gap: 5px;
+  font-family: 'Sans Comic Sans', sans-serif;
+  font-weight: bold;
+  font-size: 2.5rem;
+}
+
+/* CONTENT */
+
+/* HEADER */
+div.header * {
+  padding: 0 5px;
+}
+
+div.header {
+  background-color: var(--background-color-headerfooter-custom);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  justify-content: space-between;
+  align-items: center;
+}
+
+div.left,
+div.right>a {
+  display: grid;
+  grid-template-columns: min-content auto;
+  align-items: center;
+}
+
+div.right>a {
+  justify-content: end;
+  text-decoration: none;
+}
+
+div.right>a:link,
+div.right>a:visited {
+  color: inherit;
+}
+
+img.logo,
+img.icon {
+  width: 80px;
+  height: 80px;
+}
+
+/* CONTENT */
+div.content {
+  background-color: var(--background-color-content-custom);
+}
+
+
+/* FOOTER */
+div.footer {
+  background-color: var(--background-color-headerfooter-custom);
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
