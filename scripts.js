@@ -21,6 +21,7 @@ const gameBoard = (() => {
   let gameField = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']];
   const getGameField = () => gameField;
   let turnSwitcher = true;
+  const getTurnSwitcher = () => turnSwitcher;
 
   const changeAnnouncement = string => {
     document.querySelector('div.announcement>h2').textContent = string;
@@ -46,7 +47,7 @@ const gameBoard = (() => {
       let classField = field.getAttribute('class').split(' ')[1];
       classField = classField.split('-');
 
-      if (turnSwitcher) {
+      if (getTurnSwitcher()) {
         gameField[classField[0]][classField[1]] = 'X';
         img.src = gameItems['X'];
       } else {
@@ -64,7 +65,7 @@ const gameBoard = (() => {
   const check = (value) => {
     getGameField().forEach((field, index) => {
       if (field.every(item => item === value)) {
-        switch (turnSwitcher) {
+        switch (getTurnSwitcher()) {
           case true:
             player1.win();
             changeAnnouncement('Player 1 wins');
@@ -75,11 +76,12 @@ const gameBoard = (() => {
             break;
         }
         stop();
-      } else {
-        announcement = 'Next turn';
-        turnSwitcher ? turnSwitcher = false : turnSwitcher = true;
+        return;
       }
     })
+    changeAnnouncement('Next turn');
+    console.log(getTurnSwitcher());
+    if (getTurnSwitcher() == true) { turnSwitcher = false } else { turnSwitcher = true };
   }
 
   const stop = () => {
