@@ -76,11 +76,11 @@ img.icon:hover {
 div.content {
   background-color: var(--background-color-content-custom);
   display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: min-content auto;
+  grid-template-columns: repeat(4, auto);
+  grid-template-rows: auto min-content auto auto;
   grid-template-areas:
-    'announcement announcement'
-    'controls gameboard';
+    'announcement announcement announcement announcement'
+    'player1 controls gameboard player2';
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -93,6 +93,23 @@ div.announcement {
 
 div.announcement>h2 {
   margin: 20px 0;
+}
+
+div.player-score {
+  align-self: flex-start;
+  padding: 0 100px;
+}
+
+div.player-score>p {
+  text-align: center;
+}
+
+div.player-score:first-of-type {
+  grid-area: player1;
+}
+
+div.player-score:last-of-type {
+  grid-area: player2;
 }
 
 div.controls {

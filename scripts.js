@@ -1,7 +1,15 @@
 const gameItems = {
-  'X': 'static/x.svg',
-  'O': 'static/o.svg',
+  X: 'static/x.svg',
+  O: 'static/o.svg',
 }
+const checkWinningCombos = value => [
+  [[value, '-', '-'], ['-', value, '-'], ['-', '-', value]],
+  [['-', '-', value], ['-', value, '-'], [value, '-', '-']],
+  [[value, '-', '-'], [value, '-', '-'], [value, '-', '-']],
+  [['-', value, '-'], ['-', value, '-'], ['-', value, '-']],
+  [['-', '-', value], ['-', '-', value], ['-', '-', value]],
+]
+
 
 
 const playerFactory = function (name) {
@@ -22,20 +30,23 @@ const gameBoard = (() => {
   const getGameField = () => gameField;
   let turnSwitcher = true;
   const getTurnSwitcher = () => turnSwitcher;
+  const changeTurnSwitcher = (value) => turnSwitcher = value;
 
-  const changeAnnouncement = string => {
-    document.querySelector('div.announcement>h2').textContent = string;
+  const changeAnnouncement = (string) => {
+    document.getElementById('announcement').textContent = string;
   }
+
+  const getPlayerScore = () => document.querySelectorAll('div.player-score>p');
 
   const getFields = () => document.querySelectorAll('div.field');
 
   const reset = () => {
-    getFields().forEach(field => {
+    getFields().forEach((field) => {
       field.innerHTML = '';
       field.addEventListener('click', () => turn(field))
     });
     gameField = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']];
-    turnSwitcher = true;
+    changeTurnSwitcher(true);
     changeAnnouncement('Play the game!');
   }
 
@@ -58,34 +69,46 @@ const gameBoard = (() => {
       img.setAttribute('class', 'item');
       field.appendChild(img);
 
-      check(gameField[classField[0]][classField[1]]);
+      if (check(gameField[classField[0]][classField[1]])) {
+        switch (getTurnSwitcher()) {
+          case true:
+            player1.win();
+            getPlayerScore()[0].textContent = player1.getScore();
+            changeAnnouncement(`${player1.getName()} wins!`)
+            break;
+          case false:
+            player2.win();
+            getPlayerScore()[0].textContent = player2.getScore();
+            changeAnnouncement(`${player2.getName()} wins!`)
+            break;
+        }
+        stop();
+      } else {
+        changeAnnouncement('Next turn');
+        getTurnSwitcher() == true ? changeTurnSwitcher(false) : changeTurnSwitcher(true);
+      }
     }
   }
 
   const check = (value) => {
-    getGameField().forEach((field, index) => {
-      if (field.every(item => item === value)) {
-        switch (getTurnSwitcher()) {
-          case true:
-            player1.win();
-            changeAnnouncement('Player 1 wins');
-            break;
-          case false:
-            player2.win();
-            changeAnnouncement('Player 2 wins!');
-            break;
-        }
-        stop();
-        return;
-      }
-    })
-    changeAnnouncement('Next turn');
-    console.log(getTurnSwitcher());
-    if (getTurnSwitcher() == true) { turnSwitcher = false } else { turnSwitcher = true };
+    let status = false;
+    getGameField().some(((field) => {
+      if (field.every((item) => item === value)) status = true;
+    }));
+    if (status === false) {
+      let revisedGameField = JSON.parse(JSON.stringify(getGameField())); // Creating deep copy
+      revisedGameField.forEach((combo) => {
+        combo.forEach((item, index) => item != value ? combo[index] = '-' : item)
+      })
+      status = checkWinningCombos(value).some((element) =>
+        JSON.stringify(element) == JSON.stringify(revisedGameField)
+      );
+    }
+    return status;
   }
 
   const stop = () => {
-    getFields().forEach(field => {
+    getFields().forEach((field) => {
       let newField = field.cloneNode(true);
       field.parentNode.replaceChild(newField, field);
     });
@@ -96,4 +119,10 @@ const gameBoard = (() => {
 
 
 document.querySelector('button.restart').addEventListener('click', gameBoard.reset)
-document.querySelectorAll('div.field').forEach(field => field.addEventListener('click', () => gameBoard.turn(field)));
+document.querySelectorAll('div.field').forEach((field) =>
+  field.addEventListener('click', () => gameBoard.turn(field))
+);
+
+const playerNames = document.querySelectorAll('div.player-score>h3');
+playerNames[0].textContent = player1.getName();
+playerNames[1].textContent = player2.getName();
