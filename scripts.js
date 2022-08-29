@@ -100,6 +100,7 @@ const gameBoard = (() => {
       revisedGameField.forEach((combo) => {
         combo.forEach((item, index) => item != value ? combo[index] = '-' : item)
       })
+      console.log(revisedGameField);
       status = checkWinningCombos(value).some((element) =>
         JSON.stringify(element) == JSON.stringify(revisedGameField)
       );
