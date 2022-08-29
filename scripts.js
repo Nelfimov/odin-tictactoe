@@ -10,8 +10,6 @@ const checkWinningCombos = value => [
   [['-', '-', value], ['-', '-', value], ['-', '-', value]],
 ]
 
-
-
 const playerFactory = function (name) {
   const getName = () => name;
   let score = 0;
@@ -20,10 +18,8 @@ const playerFactory = function (name) {
   return { getName, getScore, win };
 }
 
-
 const player1 = playerFactory(prompt('Please insert your name'));
 const player2 = playerFactory('Computer');
-
 
 const gameBoard = (() => {
   let gameField = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']];
@@ -117,7 +113,6 @@ const gameBoard = (() => {
 
   return { reset, turn, getGameField };
 })();
-
 
 document.querySelector('button.restart').addEventListener('click', gameBoard.reset)
 document.querySelectorAll('div.field').forEach((field) =>
