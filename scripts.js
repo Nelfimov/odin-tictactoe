@@ -2,16 +2,15 @@ const gameItems = {
   X: 'static/x.svg',
   O: 'static/o.svg',
 }
-const checkWinningCombos = value => [
-  [[value, '-', '-'], [value, '-', '-'], [value, '-', '-']],
-  [['-', value, '-'], ['-', value, '-'], ['-', value, '-']],
-  [['-', '-', value], ['-', '-', value], ['-', '-', value]],
-
-  [[value, '-', '-'], ['-', value, '-'], ['-', '-', value]],
-  [['-', '-', value], ['-', value, '-'], [value, '-', '-']],
-  [[value, '-', '-'], [value, '-', '-'], [value, '-', '-']],
-  [['-', value, '-'], ['-', value, '-'], ['-', value, '-']],
-  [['-', '-', value], ['-', '-', value], ['-', '-', value]],
+const winningCombos = [
+  [0, 1, 2],
+  [0, 3, 6],
+  [3, 4, 5],
+  [6, 7, 8],
+  [1, 4, 7],
+  [2, 4, 6],
+  [2, 5, 8],
+  [0, 4, 8]
 ]
 
 const playerFactory = function (name) {
@@ -26,7 +25,7 @@ const player1 = playerFactory(prompt('Please insert your name'));
 const player2 = playerFactory('Computer');
 
 const gameBoard = (() => {
-  let gameField = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']];;
+  let gameField = [];
   const getGameField = () => gameField;
 
   const changeAnnouncement = (string) => {
@@ -41,7 +40,7 @@ const gameBoard = (() => {
       field.innerHTML = '';
       field.addEventListener('click', () => turn(field))
     });
-    gameField = [['-', '-', '-'], ['-', '-', '-'], ['-', '-', '-']];
+    gameField = [];
     changeAnnouncement('Play the game!');
   }
 
@@ -51,14 +50,12 @@ const gameBoard = (() => {
       return;
     } else {
       const img = document.createElement('img');
-      let classField = field.getAttribute('class').split(' ')[1];
-      classField = classField.split('-');
-      gameField[classField[0]][classField[1]] = 'X';
+      gameField[field.id] = 'X';
       img.src = gameItems['X'];
       img.setAttribute('class', 'item');
       field.appendChild(img);
 
-      if (check(gameField[classField[0]][classField[1]])) {
+      if (check(gameField[field.id])) {
         player1.win();
         getPlayerScore()[0].textContent = player1.getScore();
         changeAnnouncement(`${player1.getName()} wins!`)
@@ -76,29 +73,20 @@ const gameBoard = (() => {
   }
 
   const opponentTurn = () => {
-
-    const coordinates = () => [
-      Math.floor(Math.random() * 3),
-      Math.floor(Math.random() * 3),
-    ];
-    let field;
-    let value;
-
-
+    const getCoordinate = () => Math.floor(Math.random() * 9);
+    let coordinate;
     while (true) {
-      value = coordinates();
-      field = document
-        .querySelector(`div[class="field ${value[0]}-${value[1]}"]`);
-      if (!field.hasChildNodes()) break;
+      coordinate = getCoordinate();
+      if (!document.getElementById(coordinate).hasChildNodes()) break;
     }
-    gameField[value[0]][value[1]] = 'O';
+    gameField[coordinate] = 'O';
 
     const img = document.createElement('img');
     img.setAttribute('class', 'item');
     img.src = gameItems['O'];
-    field.appendChild(img);
+    document.getElementById(coordinate).appendChild(img);
 
-    if (check(gameField[value[0]][value[1]])) {
+    if (check(gameField[coordinate])) {
       player2.win();
       getPlayerScore()[1].textContent = player2.getScore();
       changeAnnouncement(`${player2.getName()} wins!`)
@@ -109,21 +97,13 @@ const gameBoard = (() => {
   }
 
   const check = (value) => {
-    let status = false;
-    getGameField().some(((field) => {
-      if (field.every((item) => item === value)) status = true;
-    }));
-    if (status === false) {
-      let revisedGameField = JSON.parse(JSON.stringify(getGameField())); // Creating deep copy
-      revisedGameField.forEach((combo) => {
-        combo.forEach((item, index) => item != value ? combo[index] = '-' : item)
-      })
-      status = checkWinningCombos(value).some((element) =>
-        JSON.stringify(element) == JSON.stringify(revisedGameField)
-      );
-    }
-    return status;
+    let playerArray = [...getGameField()].map((element, index) => element == value ? index : null)
+      .filter((element) => element != null);
+    return winningCombos.some((combo) => playerArray.join(',')
+      .includes(combo.join(',')));
   }
+
+  const emptyFields = () => getGameField().filter(f => typeof f == 'string');
 
   const stop = () => {
     getFields().forEach((field) => {
@@ -132,7 +112,7 @@ const gameBoard = (() => {
     });
   }
 
-  return { reset, turn, getGameField };
+  return { reset, turn, getGameField, emptyFields };
 })();
 
 document.querySelector('button.restart').addEventListener('click', gameBoard.reset)
