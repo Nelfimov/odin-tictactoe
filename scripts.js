@@ -10,7 +10,7 @@ const winningCombos = [
   [1, 4, 7],
   [2, 4, 6],
   [2, 5, 8],
-  [0, 4, 8]
+  [0, 4, 8],
 ]
 
 const playerFactory = function (name) {
@@ -21,13 +21,16 @@ const playerFactory = function (name) {
   return { getName, getScore, win };
 }
 
+// Creating two players from factory
 const player1 = playerFactory(prompt('Please insert your name'));
 const player2 = playerFactory('Computer');
 
+// Gamboard module
 const gameBoard = (() => {
-  let gameField = [];
+  let gameField = new Array(9);
   const getGameField = () => gameField;
 
+  // Function to change announcement at the top of the page
   const changeAnnouncement = (string) => {
     document.getElementById('announcement').textContent = string;
   }
@@ -35,6 +38,7 @@ const gameBoard = (() => {
   const getPlayerScore = () => document.querySelectorAll('div.player-score>p');
   const getFields = () => document.querySelectorAll('div.field');
 
+  // Remove all items from gamefield
   const reset = () => {
     getFields().forEach((field) => {
       field.innerHTML = '';
@@ -44,6 +48,7 @@ const gameBoard = (() => {
     changeAnnouncement('Play the game!');
   }
 
+  // Turn function
   const turn = field => {
     if (field.hasChildNodes()) {
       changeAnnouncement('This field is already taken!');
@@ -72,6 +77,7 @@ const gameBoard = (() => {
     }
   }
 
+  // AI turn function
   const opponentTurn = () => {
     const getCoordinate = () => Math.floor(Math.random() * 9);
     let coordinate;
@@ -96,6 +102,7 @@ const gameBoard = (() => {
     }
   }
 
+  // Check current gamefield situation for containing winning combo
   const check = (value) => {
     let playerArray = [...getGameField()].map((element, index) => element == value ? index : null)
       .filter((element) => element != null);
@@ -103,8 +110,14 @@ const gameBoard = (() => {
       .includes(combo.join(',')));
   }
 
-  const emptyFields = () => getGameField().filter(f => typeof f == 'string');
+  // Get remaining empty fields
+  const getEmptyFields = () => {
+    let emptyFields = getGameField().map((element, index) => typeof element === 'undefined' ? index : undefined);
+    console.log(emptyFields);
+    return emptyFields.filter((element) => typeof element !== 'undefined');
+  }
 
+  // Function to stop the game and remove all eventlisteners
   const stop = () => {
     getFields().forEach((field) => {
       let newField = field.cloneNode(true);
@@ -112,7 +125,7 @@ const gameBoard = (() => {
     });
   }
 
-  return { reset, turn, getGameField, emptyFields };
+  return { reset, turn, getGameField, getEmptyFields };
 })();
 
 document.querySelector('button.restart').addEventListener('click', gameBoard.reset)
