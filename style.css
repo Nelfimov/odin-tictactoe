@@ -15,6 +15,11 @@
   }
 }
 
+@font-face {
+  font-family: 'Sans Comic Sans';
+  src: url(static/SansComicSansRegular-X6gd.ttf);
+}
+
 html,
 body {
   height: 100vh;
